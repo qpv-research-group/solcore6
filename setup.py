@@ -1,14 +1,20 @@
 from setuptools import setup
 
 install_requires = []
-tests_require = ["pytest", "pytest-cov"]
+tests_require = [
+    "pytest",
+    "pytest-cov",
+    "pytest-flake8",
+    "pytest-mypy",
+]
 docs_require = []
 extras_require = {
-    "dev": tests_require + docs_require + ["pre-commit"],
+    "dev": tests_require
+    + docs_require
+    + ["pre-commit", "flake8", "black", "mypy", "bump2version"],
     "docs": docs_require,
     "test": tests_require,
 }
-
 
 setup(
     name="solcore",
