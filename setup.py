@@ -9,9 +9,7 @@ tests_require = [
 ]
 docs_require = []
 extras_require = {
-    "dev": tests_require
-    + docs_require
-    + ["pre-commit", "flake8", "black", "mypy", "bump2version"],
+    "dev": tests_require + docs_require + ["pre-commit", "bump2version"],
     "docs": docs_require,
     "test": tests_require,
 }
