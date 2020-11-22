@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Dict, List, Optional, Tuple, TypeVar, Union, Set, Type
+from typing import Dict, List, Optional, Set, Tuple, Type, TypeVar, Union
+
+import xarray as xr
 
 import pint
-import xarray as xr
 
 
 class MaterialMissing(Exception):
@@ -302,7 +303,7 @@ class ParameterManager:
             if p not in exclude
         }
 
-    @lru_cache
+    @lru_cache(maxsize=128)
     def _validate_source(self, source: str) -> None:
         """Checks if a source is a known source
 
@@ -337,7 +338,7 @@ class ParameterManager:
         self._validate_source(source)
         return self.sources[source]
 
-    @lru_cache
+    @lru_cache(maxsize=128)
     def _normalise_source(self, source: Union[str, Tuple[str]]) -> Tuple[str, ...]:
         """Normalise the sources to a standard sequence and prioritize them.
 
