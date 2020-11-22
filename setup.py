@@ -1,6 +1,6 @@
 from setuptools import setup
 
-install_requires = []
+install_requires = ["numpy", "xarray", "pint"]
 tests_require = [
     "pytest",
     "pytest-cov",
