@@ -20,7 +20,7 @@ SAFE_BUILTINS = {k: v for k, v in math.__dict__.items() if not k.startswith("__"
 """Only common mathematical opperations are allowed when evaluating expressions."""
 
 
-@lru_cache()
+@lru_cache(maxsize=128)
 def app_dir() -> Path:
     """Finds the application data directory for the current platform."""
     if sys.platform == "win32":
@@ -63,7 +63,7 @@ def locate_source_files() -> Tuple[Iterator[Path], ...]:
     )
 
 
-@lru_cache
+@lru_cache(maxsize=128)
 def populate_sources(
     locations: Tuple[Iterator[Path], ...] = locate_source_files(),
 ) -> Tuple[List, Dict[str, Path], Dict[str, int]]:
