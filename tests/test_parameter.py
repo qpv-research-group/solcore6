@@ -202,15 +202,15 @@ class TestParameterSourceBase:
         parameter_manager.add_source = MagicMock()
 
         class NewSource(ParameterSourceBase):
-            name = "my source"
+            name = "my_source"
 
-        parameter_manager.add_source.assert_called_once_with("my source", NewSource)
+        parameter_manager.add_source.assert_called_once_with("my_source", NewSource)
         parameter_manager.add_source.reset_mock()
 
-        class NewSource2(ParameterSourceBase):
-            name = ["my source 1", "my source 2"]
+        with raises(ValueError):
 
-        assert parameter_manager.add_source.call_count == 2
+            class NewSource2(ParameterSourceBase):
+                name = ""
 
     def test_properties(self, parameter_manager):
         from solcore.parameter import ParameterSourceBase

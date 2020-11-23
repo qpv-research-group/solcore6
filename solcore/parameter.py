@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Dict, List, Optional, Set, Tuple, Type, TypeVar, Union
+from typing import Dict, Optional, Set, Tuple, Type, TypeVar, Union
 
 import xarray as xr
 
@@ -10,7 +10,8 @@ import pint
 
 
 class MaterialMissing(Exception):
-    """Raised if a material does not exist in a source"""
+
+    """Raised if a material does not exist in a source."""
 
     def __init__(self, source, material):
         self.source = source
@@ -21,7 +22,8 @@ class MaterialMissing(Exception):
 
 
 class ParameterMissing(Exception):
-    """Raised if a parameter does not exist for a given material in that source"""
+
+    """Raised if a parameter does not exist for a given material in that source."""
 
     def __init__(self, source, material, parameter):
         self.source = source
@@ -36,7 +38,8 @@ class ParameterMissing(Exception):
 
 
 class InputArgumentMissing(Exception):
-    """Raised if there is an error of missing input argument"""
+
+    """Raised if there is an error of missing input argument."""
 
     def __init__(self, argument):
         self.argument = argument
@@ -46,7 +49,8 @@ class InputArgumentMissing(Exception):
 
 
 class ParameterSourceError(Exception):
-    """Raised if there is an error setting upt the source"""
+
+    """Raised if there is an error setting upt the source."""
 
     pass
 
@@ -380,16 +384,13 @@ class ParameterSourceBase(ABC):
     name: str = ""
     _priority: int = 0
 
-    def __init_subclass__(cls: Type[ParameterSourceBase], **kwargs):
+    def __init_subclass__(cls: Type[ParameterSourceBase]):
         if len(cls.name) == 0:
             raise ValueError(
                 "A ParameterSource subclass cannot have an empty attribute 'name'."
             )
-        elif isinstance(cls.name, str):
+        elif not cls.name.startswith("_"):
             ParameterManager().add_source(cls.name, cls)
-        elif isinstance(cls.name, List):
-            for n in cls.name:
-                ParameterManager().add_source(n, cls)
 
     @classmethod
     @abstractmethod
