@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Optional, Hashable, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any
 
 import xarray as xr
-import pandas as pd
 from pint import Quantity as Q_
 from frozendict import frozendict
 
@@ -69,6 +68,7 @@ class Material:
         """List of parameters already stored in the material."""
         return tuple(self._params.keys())
 
+    @property
     def nk(self) -> xr.DataArray:
         """DataArray with the complex refractive index of the material.
 
@@ -168,41 +168,6 @@ class Material:
 
         return cls(name, comp, sources, nk, kwargs)
 
-    @classmethod
-    def from_dataframe(
-        cls, data: pd.DataFrame, index: Hashable = 0, nk: xr.DataArray = xr.DataArray()
-    ) -> Material:
-        """Construct a material object from a pandas DataFrame.
-
-        Args:
-            data: A DataFrame with all the material information. Composition entry
-                should be a dictionary of key: value pairs.
-            index: Index label from where to retrieve the data. By default,
-                index = 0 is used.
-            nk: Optionally, an xarray with the refractive index information for this
-                material.
-
-        Returns:
-            A new Material object.
-        """
-        try:
-            name = data.loc[index, "name"]
-        except KeyError:
-            raise KeyError(
-                "'name' is a required field in the input DataFrame when creating a "
-                "Material."
-            )
-
-        comp = data.loc[index, "comp"] if "comp" in data else {}
-        sources = data.loc[index, "sources"] if "sources" in data else ()
-        param_cols = [k for k in data.columns if k not in ("name", "comp", "sources")]
-        kwargs = data.loc[index, param_cols].to_dict()
-
-        if nk.shape != ():
-            cls._validate_nk(nk)
-
-        return cls(name, comp, sources, nk, **kwargs)
-
     @property
     def material_str(self) -> str:
         """Return the material name embedding the composition information."""
@@ -220,19 +185,6 @@ class Material:
         result = dict(name=self.name, comp=self.comp, sources=self.sources, nk=self._nk)
         result.update(self._params)
         return result
-
-    def to_dataframe(self) -> pd.DataFrame:
-        """Provide all the Material information as a pandas DataFrame.
-
-        Note that this does not include the refractive index data, 'nk', if present.
-
-        Returns:
-            A DataFrame with the material information.
-        """
-        asdict = self.to_dict()
-        asdict["comp"] = [asdict["comp"]]
-        asdict.pop("nk")
-        return pd.DataFrame.from_dict(asdict)
 
     @staticmethod
     def _validate_nk(nk: xr.DataArray) -> None:
@@ -255,4 +207,4 @@ if __name__ == "__main__":
     from pprint import pp
 
     gaas = Material.factory("GaAs", include=("band_gap", "nk",), T=Q_(300, "K"),)
-    pp(gaas)
+    pp(gaas.nk.real)
