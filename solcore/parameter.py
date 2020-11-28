@@ -191,7 +191,7 @@ class ParameterManager:
         self,
         material: str,
         parameter: str,
-        source: Union[str, Tuple[str, ...], None] = None,
+        source: Union[str, Tuple[str, ...]] = (),
         **kwargs,
     ) -> Parameter:
         """Retrieve the parameter for the material.
@@ -258,7 +258,7 @@ class ParameterManager:
         material: str,
         include: Union[Tuple[str, ...], None] = None,
         exclude: Union[str, Tuple[str, ...], None] = None,
-        source: Union[str, Tuple[str, ...], None] = None,
+        source: Union[str, Tuple[str, ...]] = (),
         **kwargs,
     ) -> Dict[str, Parameter]:
         """Retrieve multiple parameters for the material (defaults to all available).

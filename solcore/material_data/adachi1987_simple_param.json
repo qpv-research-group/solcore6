@@ -15,7 +15,7 @@
         "C": 2.39,
         "gamma": 0.146,
         "D": 24.2,
-        "epsilon1inf": 1.6,
+        "epsilon1inf": 1.6
     },
     "GaP": {
         "E0": "2.74 eV",
@@ -31,7 +31,7 @@
         "C": 2.08,
         "gamma": 0.132,
         "D": 4.6,
-        "epsilon1inf": 0.0,
+        "epsilon1inf": 0.0
     },
     "GaSb": {
         "E0": "0.72 eV",
@@ -47,7 +47,7 @@
         "C": 5.69,
         "gamma": 0.29,
         "D": 7.4,
-        "epsilon1inf": 1.0,
+        "epsilon1inf": 1.0
     },
     "InAs": {
         "E0": "0.36 eV",
@@ -63,7 +63,7 @@
         "C": 1.78,
         "gamma": 0.108,
         "D": 20.8,
-        "epsilon1inf": 2.8,
+        "epsilon1inf": 2.8
     },
     "InP": {
         "E0": "1.35 eV",
@@ -79,7 +79,7 @@
         "C": 1.49,
         "gamma": 0.094,
         "D": 60.4,
-        "epsilon1inf": 1.6,
+        "epsilon1inf": 1.6
     },
     "InSb": {
         "E0": "0.18 eV",
@@ -95,6 +95,6 @@
         "C": 5.37,
         "gamma": 0.318,
         "D": 19.5,
-        "epsilon1inf": 3.1,
-    },
+        "epsilon1inf": 3.1
+    }
 }

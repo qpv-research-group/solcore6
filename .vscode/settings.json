@@ -1,8 +1,13 @@
 {
     "python.pythonPath": "${workspaceFolder}/venv/bin/python",
     "python.venvPath": "${workspaceFolder}/venv",
-    "python.testing.pytestArgs": [],
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
+    "pythonTestExplorer.testFramework": "pytest",
+    "testExplorer.addToEditorContextMenu": true,
+    "testExplorer.onReload": "reset",
+    "testExplorer.onStart": "reset",
+    "python.testing.pytestPath": "/Users/dalonsoa/Documents/Projects/Solcore/solcore6/venv/bin/pytest",
+    "python.linting.pylintEnabled": false,
 }

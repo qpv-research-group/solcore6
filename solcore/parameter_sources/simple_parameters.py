@@ -83,6 +83,7 @@ def populate_sources(
     priority: Dict[str, int] = {}
     for i, location in enumerate(locations):
         for s in location:
+            print(s)
             n = s.stem.split("_simple_param")[0]
             name.append(n)
             path[n] = s
@@ -93,11 +94,12 @@ def populate_sources(
 
 def register_simple_sources(cls):
     """Register multiple simple sources found in standard locations."""
-    for name, path, priority in zip(*populate_sources()):
+    name, path, priority = populate_sources()
+    for n in name:
         type(
-            f"{name}{cls.__name__}",
+            f"{n}{cls.__name__}",
             (cls,),
-            {"name": name, "_path": path, "_priority": priority},
+            {"name": n, "_path": path[n], "_priority": priority[n]},
         )
     return cls
 
