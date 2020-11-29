@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Dict, Optional, Set, Tuple, Type, TypeVar, Union
+from typing import Dict, Optional, Set, Tuple, Type, Union
+from warnings import warn
 
 import xarray as xr
+from pint import Quantity as Q_
 
-import pint
+from .constants import pi
 
 
 class MaterialMissing(Exception):
@@ -55,10 +57,10 @@ class ParameterSourceError(Exception):
     pass
 
 
-class Parameter(pint.Quantity):
+class Parameter(Q_):
     def __new__(
         cls,
-        value: Union[str, float, int, pint.Quantity],
+        value: Union[str, float, int, Q_],
         units: Optional[str] = None,
         description: str = "",
         reference: Union[str, Tuple[str, ...]] = (),
@@ -76,13 +78,13 @@ class Parameter(pint.Quantity):
         v = value
         u = units
         if isinstance(value, str):
-            parsed = pint.Quantity(value, units)
+            parsed = Q_(value, units)
             v = parsed.magnitude
             u = parsed.units
-        elif isinstance(value, pint.Quantity):
+        elif isinstance(value, Q_):
             v = value.magnitude
             u = value.units
-        out = pint.Quantity.__new__(cls, v, u)
+        out = Q_.__new__(cls, v, u)
         out._description = str(description)
         if isinstance(reference, str):
             out._reference = (reference,)
@@ -169,14 +171,11 @@ class ParameterManager:
             name (str): Name of the source
             source_class (ParameterSource): Class to register.
 
-        Raises:
-            ParameterSourceError if the source name already exists in the registry
-
         Returns:
             None
         """
         if name in self.known_sources:
-            raise ParameterSourceError(f"ParameterSource name '{name}' already exists.")
+            warn(f"ParameterSource name '{name}' already exists.")
 
         self._known_sources[name] = source_class
         self._normalise_source.cache_clear()
@@ -509,4 +508,20 @@ def alloy_parameter(
     return p0 * (1 - x) + p1 * x - b * (1 - x) * x
 
 
-ParameterSource = TypeVar("ParameterSource", bound=ParameterSourceBase)
+def validate_nk(nk: xr.DataArray) -> None:
+    """Validates if an nk entry is actually an xarray with the correct features"""
+    if not isinstance(nk, xr.DataArray):
+        raise TypeError("The value for 'nk' must be of type 'xr.DataArray'.")
+    if "wavelength" not in nk.dims or "wavelength" not in nk.coords:
+        msg = "'wavelength' is not a DataArray dimension and coordinate."
+        raise ValueError(msg)
+
+
+@xr.register_dataarray_accessor("alpha")
+class Alpha:
+    def __init__(self, nk: xr.DataArray):
+        validate_nk(nk)
+        self._nk = nk
+
+    def __call__(self) -> xr.DataArray:
+        return 4 * pi * self._nk.imag / self._nk.wavelength

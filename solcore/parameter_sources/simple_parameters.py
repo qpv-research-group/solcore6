@@ -83,7 +83,6 @@ def populate_sources(
     priority: Dict[str, int] = {}
     for i, location in enumerate(locations):
         for s in location:
-            print(s)
             n = s.stem.split("_simple_param")[0]
             name.append(n)
             path[n] = s

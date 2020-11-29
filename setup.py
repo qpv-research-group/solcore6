@@ -1,6 +1,13 @@
 from setuptools import setup
 
-install_requires = ["numpy", "xarray", "pint", "frozendict", "pint_xarray"]
+install_requires = [
+    "numpy",
+    "xarray",
+    "pint",
+    "frozendict",
+    "pint_xarray",
+    "Deprecated",
+]
 tests_require = ["pytest", "pytest-cov", "pytest-flake8", "pytest-mypy", "hypothesis"]
 docs_require = []
 extras_require = {

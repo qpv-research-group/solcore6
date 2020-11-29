@@ -5,11 +5,17 @@ from typing import Optional, Tuple, Dict, Any
 import xarray as xr
 from pint import Quantity as Q_
 from frozendict import frozendict
+from deprecated import deprecated
+from warnings import warn
+from functools import partial
 
-from solcore.parameter import ParameterManager, Parameter
+from solcore.parameter import ParameterManager, Parameter, validate_nk
 
 
 class Material:
+
+    __slots__ = ("name", "comp", "sources", "_nk", "_params")
+
     def __init__(
         self,
         name: str,
@@ -58,10 +64,7 @@ class Material:
         return self._params[item]
 
     def __setattr__(self, item, value) -> Any:
-        raise NotImplementedError("Attributes of a Material object cannot be change.")
-
-    def __delattr__(self, item):
-        raise NotImplementedError("Attributes of a Material object cannot be deleted.")
+        raise AttributeError("Attributes of a Material object cannot be change.")
 
     @property
     def params(self) -> Tuple[str, ...]:
@@ -80,10 +83,19 @@ class Material:
             The refractive index
         """
         if self._nk.shape == ():
-            self._nk = ParameterManager().get_nk(
+            nk = ParameterManager().get_nk(
                 material=self.name, source=self.sources, comp=self.comp, **self._params,
             )
+            object.__setattr__(self, "_nk", nk)
         return self._nk
+
+    @property
+    def material_str(self) -> str:
+        """Return the material name embedding the composition information."""
+        result = self.name
+        for k, v in self.comp.items():
+            result = result.replace(k, f"{k}{v:.2}")
+        return result
 
     @classmethod
     def factory(
@@ -116,84 +128,62 @@ class Material:
             A new Material object.
         """
         comp = comp if comp else {}
+        nk = kwargs.pop("nk", xr.DataArray())
+
+        with_units = cls._validate_args(**kwargs)
 
         to_retrieve = tuple((p for p in include if p != "nk"))
         params: Dict[str, Parameter] = (
             ParameterManager().get_multiple_parameters(
-                material=name, include=to_retrieve, source=sources, comp=comp, **kwargs
+                material=name,
+                include=to_retrieve,
+                source=sources,
+                comp=comp,
+                **with_units,
             )
             if to_retrieve != ()
             else {}
         )
-        params.update(kwargs)
+        params.update(with_units)
 
-        nk = params.get("nk", xr.DataArray())
         if nk.shape != ():
-            cls._validate_nk(nk)
+            validate_nk(nk)
         elif "nk" in include:
             nk = ParameterManager().get_nk(
-                material=name, source=sources, comp=comp, **kwargs
+                material=name, source=sources, comp=comp, **params
             )
 
         return cls(name=name, comp=comp, sources=sources, nk=nk, params=params)
 
-    @classmethod
-    def from_dict(cls, **kwargs) -> Material:
-        """Construct a material object from a plain, unpacked dictionary.
+    @staticmethod
+    def _validate_args(**kwargs) -> Dict[str, Q_]:
+        """Provide units to those arguments without them.
 
-        Any entry that is not "name", "comp", "sources" or "nk" is bundled together as
-        "params".
+        T, Nd and Na are assumed to be in S.I. units (Kelvin and 1/m3). Any other is
+        assumed dimensionless, which might have unexpected consequences. A warning is
+        provided in this case.
 
         Args:
-            data (dict): A dictionary with all the material information. Composition
-                should be a dictionary itself.
+            - kwargs: Magnitudes to give units to.
 
-        Returns:
-            A new Material object.
+        Return:
+            A dictionary of the inputs including units.
         """
-        try:
-            name = kwargs.pop("name")
-        except KeyError:
-            raise KeyError(
-                "'name' is a required field in the input dictionary when  creating a "
-                "material."
-            )
-
-        comp = kwargs.pop("comp", {})
-        sources = kwargs.pop("sources", ())
-        nk = kwargs.pop("nk", xr.DataArray())
-
-        if nk.shape != ():
-            cls._validate_nk(nk)
-
-        return cls(name, comp, sources, nk, kwargs)
-
-    @property
-    def material_str(self) -> str:
-        """Return the material name embedding the composition information."""
-        result = self.name
-        for k, v in self.comp.items():
-            result = result.replace(k, f"{k}{v:.2}")
+        result = dict()
+        for k, v in kwargs.items():
+            if isinstance(v, (Q_, Parameter)):
+                result[k] = v
+            elif k == "T":
+                result[k] = Q_(v, "K")
+            elif k in ("Nd", "Na"):
+                result[k] = Q_(v, "1/m**3")
+            else:
+                result[k] = Q_(v, "dimensionless")
+                warn(
+                    f"Input argument '{k}' asigned 'dimensionless' units.",
+                    category=UserWarning,
+                )
         return result
-
-    def to_dict(self) -> dict:
-        """Provide all the Material information as a plain dictionary.
-
-        Returns:
-            A dictionary with all the material information.
-        """
-        result = dict(name=self.name, comp=self.comp, sources=self.sources, nk=self._nk)
-        result.update(self._params)
-        return result
-
-    @staticmethod
-    def _validate_nk(nk: xr.DataArray) -> None:
-        """Validates if an nk entry is actually an xarray with the correct features"""
-        if not isinstance(nk, xr.DataArray):
-            raise TypeError("The value for 'nk' must be of type 'xr.DataArray'.")
-        if "wavelength" not in nk.dims or "wavelength" not in nk.coords:
-            msg = "'wavelength' is not a DataArray dimension and coordinate."
-            raise ValueError(msg)
 
     def __repr__(self) -> str:
         nk = self._nk.__repr__().replace("\n", " ")
@@ -203,8 +193,37 @@ class Material:
         )
 
 
+@deprecated(version="6.0.0", reason="Use 'Material.factory' instead.")
+def material(name: str):
+    """Firts step of the old, 2-step interface to get materials. Deprecated.
+
+    Used for compatibility with Solcore v5, where a 2-step material initialization
+    is used. It will be removed in future releases of Solcore 6.
+    """
+    return partial(_material, name)
+
+
+def _material(name: str, **kwargs):
+    """Second step of the old, 2-step interface to get materials. Deprecated.
+
+    Used for compatibility with Solcore v5, where a 2-step material initialization
+    is used. It will be removed in future releases of Solcore 6.
+    """
+    comp = {k: v for k, v in kwargs.items() if k in ("In", "Al", "P", "Sb", "As", "N")}
+    for k in comp.keys():
+        kwargs.pop(k)
+    return Material.factory(name=name, comp=comp, **kwargs)
+
+
 if __name__ == "__main__":
     from pprint import pp
 
-    gaas = Material.factory("GaAs", include=("band_gap", "nk",), T=Q_(300, "K"),)
-    pp(gaas.nk.real)
+    InGaAs = material("InGaAs")
+    n_InGaAs = InGaAs(T=300, In=0.2, Na=1e23)
+
+    # gaas = Material.factory(
+    #     "GaAs",
+    #     include=("band_gap",),
+    #     T=300,
+    # )
+    pp(n_InGaAs)

@@ -1,4 +1,4 @@
-from pytest import mark, raises
+from pytest import mark, raises, warns, approx
 from unittest.mock import MagicMock
 
 
@@ -44,8 +44,6 @@ class TestParameterManager:
         assert parameter_manager.sources["my source"] == "A source"
 
     def test_add_source(self, parameter_manager):
-        from solcore.parameter import ParameterSourceError
-
         class Dummy:
             cache_clear = MagicMock()
 
@@ -58,7 +56,7 @@ class TestParameterManager:
         ps._normalise_source.cache_clear.assert_called()
         ps._validate_source.cache_clear.assert_called()
 
-        with raises(ParameterSourceError):
+        with warns(UserWarning):
             ps.add_source("my source", None)
 
     def test_known_sources(self, parameter_manager):
@@ -199,6 +197,7 @@ class TestParameterSourceBase:
     def test__init_subclass__(self, parameter_manager):
         from solcore.parameter import ParameterSourceBase
 
+        add_source = parameter_manager.add_source
         parameter_manager.add_source = MagicMock()
 
         class NewSource(ParameterSourceBase):
@@ -212,9 +211,12 @@ class TestParameterSourceBase:
             class NewSource2(ParameterSourceBase):
                 name = ""
 
+        parameter_manager.add_source = add_source
+
     def test_properties(self, parameter_manager):
         from solcore.parameter import ParameterSourceBase
 
+        add_source = parameter_manager.add_source
         parameter_manager.add_source = MagicMock()
 
         class NewSource(ParameterSourceBase):
@@ -240,6 +242,7 @@ class TestParameterSourceBase:
 
         assert NewSource().parman == parameter_manager
         assert NewSource().priority == 10
+        parameter_manager.add_source = add_source
 
 
 @mark.parametrize("bow", [-1, 1])
@@ -253,3 +256,32 @@ def test_alloy_parameter(bow):
     no_bow = alloy_parameter(p0, p1, x)
     with_bow = alloy_parameter(p0, p1, x, bow)
     assert with_bow <= no_bow if bow >= 0 else with_bow > no_bow
+
+
+def test_validate_nk(self):
+    from solcore.parameter import validate_nk
+    import xarray as xr
+    import numpy as np
+
+    # Not at DataArray
+    nk = np.array([1, 2, 3])
+    with raises(TypeError):
+        validate_nk(nk)
+
+    # DataArray is not valid
+    nk = xr.DataArray([1, 2, 3])
+    with raises(ValueError):
+        validate_nk(nk)
+
+    # DataArray is valid
+    nk = xr.DataArray([1, 2, 3], dims=["wavelength"], coords={"wavelength": [0, 1, 2]})
+    validate_nk(nk)
+
+
+def test_alpha_accessor():
+    import solcore.parameter  # noqa: F401
+    import xarray as xr
+    import numpy as np
+
+    nk = xr.DataArray([1, 2, 3], dims=["wavelength"], coords={"wavelength": [1, 2, 3]})
+    assert nk.alpha().data == approx(np.array([0, 0, 0]))
