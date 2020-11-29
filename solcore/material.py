@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional, Tuple, Dict, Any
 
 import xarray as xr
+import numpy as np
 from pint import Quantity as Q_
 from frozendict import frozendict
 from deprecated import deprecated
@@ -192,6 +193,28 @@ class Material:
             f"sources={self.sources}, nk={nk}, params={self._params})>"
         )
 
+    @deprecated("Use 'Material.nk.real.interp' instead.", version="6.0.0")
+    def n(self, wavelength: np.ndarray) -> np.ndarray:
+        """Real part of the refractive index."""
+        return self.nk.real.interp(wavelength=Q_(wavelength, "m")).data
+
+    @deprecated("Use 'Material.nk.real.interp' instead.", version="6.0.0")
+    def k(self, wavelength: np.ndarray) -> np.ndarray:
+        """Imaginary part of the refractive index or extinction coefficient."""
+        return self.nk.real.interp(wavelength=Q_(wavelength, "m")).data
+
+    @deprecated("Use 'Material.nk.alpha().interp' instead.", version="6.0.0")
+    def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        """Absorption coefficient at the given energies, in m."""
+        return self.nk.alpha().interp(wavelength=Q_(wavelength, "m")).data
+
+    @deprecated("Use 'Material.nk.alpha().interp' instead.", version="6.0.0")
+    def alphaE(self, energy: np.ndarray) -> np.ndarray:
+        """Absorption coefficient at the given energies, in J."""
+        from .constants import h, c
+
+        return self.nk.alpha().interp(wavelength=(h * c / Q_(energy, "J"))).data
+
 
 @deprecated(version="6.0.0", reason="Use 'Material.factory' instead.")
 def material(name: str):
@@ -221,9 +244,6 @@ if __name__ == "__main__":
     InGaAs = material("InGaAs")
     n_InGaAs = InGaAs(T=300, In=0.2, Na=1e23)
 
-    # gaas = Material.factory(
-    #     "GaAs",
-    #     include=("band_gap",),
-    #     T=300,
-    # )
-    pp(n_InGaAs)
+    gaas = Material.factory("GaAs", include=("band_gap",), T=300,)
+    wl = np.linspace(300, 1000) * 1e-9
+    pp(gaas.n(wl))
