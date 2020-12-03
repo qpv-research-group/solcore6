@@ -20,33 +20,16 @@ SAFE_BUILTINS = {k: v for k, v in math.__dict__.items() if not k.startswith("__"
 """Only common mathematical opperations are allowed when evaluating expressions."""
 
 
-@lru_cache(maxsize=128)
-def app_dir() -> Path:
-    """Finds the application data directory for the current platform."""
-    if sys.platform == "win32":
-        path = Path.home() / "AppData" / "Local" / "solcore"
-    elif sys.platform == "darwin":
-        path = Path.home() / "Library" / "ApplicationSupport" / "solcore"
-    else:
-        path = Path.home() / ".solcore"
-
-    if not path.is_dir():
-        raise OSError(f"Solcore's application directory '{path}' does not exist.")
-
-    return path
-
-
 def locate_source_files_builtin() -> Iterator[Path]:
     """Locate the builtin parameter sources and return their names."""
     return (Path(__file__).parent.parent / "material_data").glob("*_simple_param.json")
 
 
-def locate_source_files_in_solcore_app_dir() -> Iterator[Path]:
-    """Locate the source files in Solcore's application directory."""
-    try:
-        return app_dir().glob("*_simple_param.json")
-    except OSError:
-        return iter(())
+def locate_source_files_in_path() -> Tuple[Iterator[Path], ...]:
+    """Locate the source files in SOLCORE_PARAMETERS locations."""
+    sep = ";" if sys.platform == "win32" else ":"
+    paths = os.environ.get("SOLCORE_PARAMETERS", "").split(sep)[::-1]
+    return tuple((Path(p).glob("*_simple_param.json") for p in paths if p != ""))
 
 
 def locate_source_files_in_pwd() -> Iterator[Path]:
@@ -58,7 +41,7 @@ def locate_source_files() -> Tuple[Iterator[Path], ...]:
     """Locate the locations of the parameter sources and return their names."""
     return (
         locate_source_files_builtin(),
-        locate_source_files_in_solcore_app_dir(),
+        *locate_source_files_in_path(),
         locate_source_files_in_pwd(),
     )
 

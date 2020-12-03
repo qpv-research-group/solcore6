@@ -2,42 +2,31 @@ from pytest import raises
 from unittest.mock import MagicMock, patch
 
 
-def test_app_dir(app_local_path):
-    from solcore.parameter_sources.simple_parameters import app_dir
-    from pathlib import Path
-    import os
-
-    assert Path.home() != os.path.expanduser("~")
-    with raises(OSError):
-        app_dir()
-
-    app_path = Path.home() / app_local_path
-    os.makedirs(str(app_path))
-    assert app_dir() == app_path
-
-
 def test_locate_source_files_builtin():
     from solcore.parameter_sources.simple_parameters import locate_source_files_builtin
 
     assert len(list(locate_source_files_builtin())) > 0
 
 
-def test_locate_source_files_in_solcore_app_dir(app_temp_path):
-    package = "solcore.parameter_sources.simple_parameters"
-    with patch(f"{package}.app_dir", lambda: app_temp_path):
-        from solcore.parameter_sources.simple_parameters import (
-            locate_source_files_builtin,
-            locate_source_files_in_solcore_app_dir,
-        )
-        import shutil
+def test_locate_source_files_in_path(tmp_path):
+    from solcore.parameter_sources.simple_parameters import (
+        locate_source_files_builtin,
+        locate_source_files_in_path,
+    )
+    import shutil
+    import os
 
-        assert len(list(locate_source_files_in_solcore_app_dir())) == 0
-        builtin = list(locate_source_files_builtin())[0]
-        shutil.copy(builtin, app_temp_path)
+    assert len(locate_source_files_in_path()) == 0
 
-        in_app_dir = list(locate_source_files_in_solcore_app_dir())
-        assert len(in_app_dir) == 1
-        assert in_app_dir[0].stem == builtin.stem
+    builtin = list(locate_source_files_builtin())[0]
+    (tmp_path / "more_data").mkdir()
+    shutil.copy(builtin, tmp_path)
+    shutil.copy(builtin, tmp_path / "more_data")
+    os.environ["SOLCORE_PARAMETERS"] = f"{str(tmp_path)}:{str(tmp_path/ 'more_data')}"
+    in_app_dir = locate_source_files_in_path()
+    assert len(in_app_dir) == 2
+    for source in in_app_dir:
+        assert list(source)[0].stem == builtin.stem
 
 
 def test_locate_source_files_in_pwd(tmp_path):
@@ -69,13 +58,14 @@ def test_locate_source_files():
 
     package = "solcore.parameter_sources.simple_parameters"
     with patch(f"{package}.locate_source_files_builtin", builtin), patch(
-        f"{package}.locate_source_files_in_solcore_app_dir", app_dir
+        f"{package}.locate_source_files_in_path", app_dir
     ), patch(f"{package}.locate_source_files_in_pwd", pwd):
         from solcore.parameter_sources.simple_parameters import locate_source_files
 
         files = locate_source_files()
 
-    assert len(files) == 3
+    # There are no parameters in path, so only two swould be found.
+    assert len(files) == 2
     builtin.assert_called_once()
     app_dir.assert_called_once()
     pwd.assert_called_once()
