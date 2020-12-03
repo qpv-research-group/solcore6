@@ -258,7 +258,7 @@ def test_alloy_parameter(bow):
     assert with_bow <= no_bow if bow >= 0 else with_bow > no_bow
 
 
-def test_validate_nk(self):
+def test_validate_nk():
     from solcore.parameter import validate_nk
     import xarray as xr
     import numpy as np
