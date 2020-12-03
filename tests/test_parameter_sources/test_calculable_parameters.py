@@ -71,7 +71,7 @@ def test_eff_mass_z():
         eff_mass_hh_z,
         eff_mass_lh_z,
     )
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     g1 = Quantity(5.18)
     g2 = Quantity(1.19)
@@ -80,8 +80,8 @@ def test_eff_mass_z():
     lh = eff_mass_lh_z(g1, g2)
     assert hh.u == "kilogram"
     assert lh.u == "kilogram"
-    assert (electron_mass / lh + electron_mass / hh).m == approx(2 * g1.m)
-    assert (electron_mass / lh - electron_mass / hh).m == approx(4 * g2.m)
+    assert (electron_mass_ / lh + electron_mass_ / hh).m == approx(2 * g1.m)
+    assert (electron_mass_ / lh - electron_mass_ / hh).m == approx(4 * g2.m)
 
 
 def test_eff_mass_110():
@@ -90,7 +90,7 @@ def test_eff_mass_110():
         eff_mass_hh_110,
         eff_mass_lh_110,
     )
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     g1 = Quantity(5.18)
     g2 = Quantity(1.19)
@@ -100,8 +100,8 @@ def test_eff_mass_110():
     lh = eff_mass_lh_110(g1, g2, g3)
     assert hh.u == "kilogram"
     assert lh.u == "kilogram"
-    assert (electron_mass / lh + electron_mass / hh).m == approx(2 * g1.m)
-    assert (electron_mass / lh - electron_mass / hh).m == approx(g2.m + 3 * g3.m)
+    assert (electron_mass_ / lh + electron_mass_ / hh).m == approx(2 * g1.m)
+    assert (electron_mass_ / lh - electron_mass_ / hh).m == approx(g2.m + 3 * g3.m)
 
 
 def test_eff_mass_111():
@@ -110,7 +110,7 @@ def test_eff_mass_111():
         eff_mass_hh_111,
         eff_mass_lh_111,
     )
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     g1 = Quantity(5.18)
     g3 = Quantity(1.97)
@@ -119,14 +119,14 @@ def test_eff_mass_111():
     lh = eff_mass_lh_111(g1, g3)
     assert hh.u == "kilogram"
     assert lh.u == "kilogram"
-    assert electron_mass / lh + electron_mass / hh == approx(2 * g1.m)
-    assert (electron_mass / lh - electron_mass / hh).m == approx(4 * g3.m)
+    assert electron_mass_ / lh + electron_mass_ / hh == approx(2 * g1.m)
+    assert (electron_mass_ / lh - electron_mass_ / hh).m == approx(4 * g3.m)
 
 
 def test_eff_mass_electron():
     from pint import Quantity
     from solcore.parameter_sources.calculable_parameters import eff_mass_electron
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     F = Quantity(-0.56)
     Ep = Quantity("18.7 eV")
@@ -137,17 +137,17 @@ def test_eff_mass_electron():
     assert out.u == "kilogram"
 
     out = eff_mass_electron(F, Ep * 0, Delta_so, Eg)
-    assert electron_mass / out == (1 + 2 * F)
+    assert electron_mass_ / out == (1 + 2 * F)
 
 
 def test_permittivity():
     from pint import Quantity
     from solcore.parameter_sources.calculable_parameters import permittivity
-    from solcore.constants import vacuum_permittivity
+    from solcore.constants import vacuum_permittivity_
 
     er = Quantity(12.5)
     out = permittivity(er)
-    assert out == vacuum_permittivity * 12.5
+    assert out == vacuum_permittivity_ * 12.5
 
 
 class TestCalculableParameters:
@@ -285,10 +285,10 @@ def test_electron_affinity():
 def test_density_states():
     from pint import Quantity
     from solcore.parameter_sources.calculable_parameters import density_states
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     T = Quantity(298, "K")
-    mass = 0.1 * electron_mass
+    mass = 0.1 * electron_mass_
 
     ds = density_states(T, mass)
     assert density_states(1.1 * T, mass).m == approx(ds.m * 1.1 ** (3 / 2))
@@ -297,10 +297,10 @@ def test_density_states():
 
 def test_nc():
     from pint import Quantity
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     T = Quantity(298, "K")
-    mass = 0.1 * electron_mass
+    mass = 0.1 * electron_mass_
     mock_density_states = MagicMock()
     package = "solcore.parameter_sources.calculable_parameters"
 
@@ -313,10 +313,10 @@ def test_nc():
 
 def test_nv():
     from pint import Quantity
-    from solcore.constants import electron_mass
+    from solcore.constants import electron_mass_
 
     T = Quantity(298, "K")
-    mass = 0.1 * electron_mass
+    mass = 0.1 * electron_mass_
     mock_density_states = MagicMock()
     package = "solcore.parameter_sources.calculable_parameters"
 

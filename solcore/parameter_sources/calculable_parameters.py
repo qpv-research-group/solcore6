@@ -10,7 +10,7 @@ from typing import Callable, Dict, Optional, Tuple, Union
 import numpy as np
 
 from pint import Quantity
-from solcore.constants import electron_mass, h, kb, pi, vacuum_permittivity
+from solcore.constants import electron_mass_, h_, kb_, pi_, vacuum_permittivity_
 from solcore.parameter import (
     InputArgumentMissing,
     Parameter,
@@ -372,7 +372,7 @@ def eff_mass_split_off(
     mr = gamma1 - interband_matrix_element * spin_orbit_splitting / (
         3 * band_gap * (band_gap + spin_orbit_splitting)
     )
-    return electron_mass / mr
+    return electron_mass_ / mr
 
 
 @CalculableParameters.register_calculable(
@@ -394,7 +394,7 @@ def eff_mass_hh_z(
     Returns:
         The effective mass (in kg)
     """
-    return electron_mass / (gamma1 - 2 * gamma2)
+    return electron_mass_ / (gamma1 - 2 * gamma2)
 
 
 @CalculableParameters.register_calculable(
@@ -419,7 +419,7 @@ def eff_mass_hh_110(
     Returns:
         The effective mass (in kg)
     """
-    return electron_mass / (1 / 2 * (2 * gamma1 - gamma2 - 3 * gamma3))
+    return electron_mass_ / (1 / 2 * (2 * gamma1 - gamma2 - 3 * gamma3))
 
 
 @CalculableParameters.register_calculable(
@@ -441,7 +441,7 @@ def eff_mass_hh_111(
     Returns:
         The effective mass (in kg)
     """
-    return electron_mass / (gamma1 - 2 * gamma3)
+    return electron_mass_ / (gamma1 - 2 * gamma3)
 
 
 @CalculableParameters.register_calculable(
@@ -463,7 +463,7 @@ def eff_mass_lh_z(
     Returns:
         The effective mass (in kg)
     """
-    return electron_mass / (gamma1 + 2 * gamma2)
+    return electron_mass_ / (gamma1 + 2 * gamma2)
 
 
 @CalculableParameters.register_calculable(
@@ -488,7 +488,7 @@ def eff_mass_lh_110(
     Returns:
         The effective mass (in kg)
     """
-    return electron_mass / (1 / 2 * (2 * gamma1 + gamma2 + 3 * gamma3))
+    return electron_mass_ / (1 / 2 * (2 * gamma1 + gamma2 + 3 * gamma3))
 
 
 @CalculableParameters.register_calculable(
@@ -510,7 +510,7 @@ def eff_mass_lh_111(
     Returns:
         The effective mass (in kg)
     """
-    return electron_mass / (gamma1 + 2 * gamma3)
+    return electron_mass_ / (gamma1 + 2 * gamma3)
 
 
 @CalculableParameters.register_calculable(description="Electron effective mass")
@@ -544,7 +544,7 @@ def eff_mass_electron(
         * (band_gap + 2 * spin_orbit_splitting / 3)
         / (band_gap * (band_gap + spin_orbit_splitting))
     )
-    return electron_mass / mr
+    return electron_mass_ / mr
 
 
 @CalculableParameters.register_calculable(description="Absolute permittivity")
@@ -559,7 +559,7 @@ def permittivity(relative_permittivity: Union[Quantity, float]) -> Parameter:
     Returns:
         The absolute permittivity
     """
-    return vacuum_permittivity * relative_permittivity
+    return vacuum_permittivity_ * relative_permittivity
 
 
 @CalculableParameters.register_calculable(description="Electron affinity")
@@ -614,7 +614,7 @@ def density_states(T: Quantity, mass: Quantity) -> Quantity:
         The effective density of states
     """
     T = T.to("K")
-    density = 2 * (2 * pi * mass * kb * T / h ** 2) ** (3 / 2)
+    density = 2 * (2 * pi_ * mass * kb_ * T / h_ ** 2) ** (3 / 2)
     return density.to("1/cm**3")
 
 
@@ -684,4 +684,4 @@ def ni(T: Quantity, Nc: Quantity, Nv: Quantity, band_gap: Quantity) -> Quantity:
         Intrinsic carrier concentration (1/cm**3)
     """
     T = T.to("K")
-    return np.sqrt(Nc * Nv * np.exp(-band_gap / (kb * T))).to("1/cm**3")
+    return np.sqrt(Nc * Nv * np.exp(-band_gap / (kb_ * T))).to("1/cm**3")

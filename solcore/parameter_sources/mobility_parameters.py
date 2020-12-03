@@ -7,7 +7,7 @@ from typing import Tuple, Union, Dict
 import numpy as np
 
 from pint import Quantity
-from solcore.constants import kb
+from solcore.constants import kb_
 from solcore.parameter import (
     InputArgumentMissing,
     Parameter,
@@ -212,8 +212,8 @@ def fraction_electrons_direct_valley(
         The fraction.
     """
     T = T.to("K")
-    fx = (mnX / mnG) ** 1.5 * np.exp((EgG - EgX) / (kb * T))
-    fy = (mnL / mnG) ** 1.5 * np.exp((EgG - EgL) / (kb * T))
+    fx = (mnX / mnG) ** 1.5 * np.exp((EgG - EgX) / (kb_ * T))
+    fy = (mnL / mnG) ** 1.5 * np.exp((EgG - EgL) / (kb_ * T))
     fraction = 1.0 / (1 + fx + fy)
     return fraction
 
@@ -242,7 +242,7 @@ def effective_indirect_mass(
         The effective "effective" mass
     """
     T = T.to("K")
-    fx = np.exp((EgL - EgX) / (kb * T))
+    fx = np.exp((EgL - EgX) / (kb_ * T))
     fraction = 1.0 / (1 + fx)
     return mnL * fraction + mnX * (1 - fraction)
 

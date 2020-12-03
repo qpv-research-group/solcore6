@@ -2,35 +2,47 @@ import numpy as np
 
 from pint import Quantity
 
-pi = Quantity(np.pi, "dimensionless")
+
+pi = np.pi
+pi_ = Quantity(np.pi, "dimensionless")
 """Ehmmm... the Pi number"""
 
-q = Quantity(1.60217646e-19, "C")
+q = 1.60217646e-19
+q_ = Quantity(q, "C")
 """Electron charge"""
 
-kb = Quantity(1.3806503e-23, "J/K")
+kb = 1.3806503e-23
+kb_ = Quantity(kb, "J/K")
 """Boltzmann's constant"""
 
-h = Quantity(6.626068e-34, "J*s")
+h = 6.626068e-34
+h_ = Quantity(h, "J*s")
 """Plank's constant"""
 
 hbar = h / (2 * pi)
+hbar_ = h_ / (2 * pi_)
 """Reduced Plank's constant"""
 
-electron_mass = Quantity(9.10938188e-31, "kg")
+electron_mass = 9.10938188e-31
+electron_mass_ = Quantity(electron_mass, "kg")
 """Electron rest mass"""
 
-vacuum_permittivity = Quantity(8.854187817e-12, "F/m")
+vacuum_permittivity = 8.854187817e-12
+vacuum_permittivity_ = Quantity(vacuum_permittivity, "F/m")
 """Permitivity of the vacuum"""
 
-c = Quantity(299792458.0, "m/s")
+c = 299792458.0
+c_ = Quantity(c, "m/s")
 """Speed of light"""
 
-fs = Quantity(6.8e-5, "steradian")
+fs = 6.8e-5
+fs_ = Quantity(fs, "steradian")
 """Solid angle of the Sun - or entendu"""
 
-Ts = Quantity(5762.0, "k")
+Ts = 5762.0
+Ts_ = Quantity(Ts, "k")
 """Temperature of the Sun when considered as a black body"""
 
-solar_constant = Quantity(1361.0, "kW/m**2")
+solar_constant = 1361.0
+solar_constant_ = Quantity(solar_constant, "kW/m**2")
 """Solar constant - density of solar irradiance out of the atmosphere"""
