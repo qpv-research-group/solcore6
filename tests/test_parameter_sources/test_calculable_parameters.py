@@ -214,8 +214,15 @@ class TestCalculableParameters:
 
     def test_get_parameter(self):
         from solcore.parameter_sources import CalculableParameters
-        from solcore.parameter import InputArgumentMissing, Parameter, ParameterMissing
+        from solcore.parameter import (
+            InputArgumentMissing,
+            Parameter,
+            ParameterMissing,
+            ParameterManager,
+        )
 
+        ParameterManager().add_source("Calculable", CalculableParameters)
+        ParameterManager().initialize()
         cp = CalculableParameters()
 
         @CalculableParameters.register_calculable(description="The answer")

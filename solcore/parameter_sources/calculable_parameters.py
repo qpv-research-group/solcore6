@@ -185,22 +185,17 @@ class CalculableParameters(ParameterSourceBase):
                 raise InputArgumentMissing(ext)
 
         for p in to_retrieve:
-            # Is it another calculable?
-            if p in self.parameters():
-                params[p] = self.get_parameter(material, p, **kwargs)
+            # Try to get it some somewhere else
+            try:
+                params[p] = self.parman.get_parameter(material, p, **kwargs)
+            except ParameterMissing as err:
+                # If not... is there a default value??
+                if sig[p].default != insParam.empty:
+                    params[p] = sig[p].default
+                    continue
 
-            else:
-                # If not, is it in another source?
-                try:
-                    params[p] = self.parman.get_parameter(material, p, **kwargs)
-                except ParameterMissing as err:
-                    # If not... is there a default value??
-                    if sig[p].default != insParam.empty:
-                        params[p] = sig[p].default
-                        continue
-
-                    # Well, bad luck then...
-                    raise err
+                # Well, bad luck then...
+                raise err
 
         out = calculable(**params)
         ref = chain.from_iterable(

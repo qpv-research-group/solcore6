@@ -160,7 +160,7 @@ class TestSimpleSource:
         from solcore.parameter import InputArgumentMissing, ParameterMissing
 
         ss = simple_param_source
-        ss.get_parameter = MagicMock(side_effect=[2, 3])
+        ss.parman.get_parameter = MagicMock(side_effect=[2, 3])
         ss.to_param = MagicMock(side_effect=[0, 42])
 
         ss._data["Dark matter"]["x"] = "Lp"
@@ -168,7 +168,7 @@ class TestSimpleSource:
         with raises(ParameterMissing, match=msg):
             ss._get_parameter_alloy(material="Dark matter", parameter="param1")
 
-        ss.get_parameter = MagicMock(side_effect=[2, 3])
+        ss.parman.get_parameter = MagicMock(side_effect=[2, 3])
         ss.to_param = MagicMock(side_effect=[0, 42])
         ss._data["Dark matter"]["x"] = "Lp"
         ss._data["Dark matter"]["parent0"] = "mamma"
@@ -177,7 +177,7 @@ class TestSimpleSource:
         with raises(InputArgumentMissing, match=msg):
             ss._get_parameter_alloy(material="Dark matter", parameter="param1")
 
-        ss.get_parameter = MagicMock(side_effect=[2, 3])
+        ss.parman.get_parameter = MagicMock(side_effect=[2, 3])
         ss.to_param = MagicMock(side_effect=[0, 42])
         comp = {"Lp": 0.3}
         out = ss._get_parameter_alloy(

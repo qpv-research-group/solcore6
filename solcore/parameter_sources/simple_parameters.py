@@ -231,8 +231,8 @@ class SimpleSource(ParameterSourceBase):
 
         kwargs[dmat["x"]] = x
 
-        p0 = self.get_parameter(p0name, parameter, **kwargs)
-        p1 = self.get_parameter(p1name, parameter, **kwargs)
+        p0 = self.parman.get_parameter(p0name, parameter, **kwargs)
+        p1 = self.parman.get_parameter(p1name, parameter, **kwargs)
         b = self.to_param(dmat.get(parameter, 0), parameter, **kwargs)
 
         raw = alloy_parameter(p0, p1, x, b)

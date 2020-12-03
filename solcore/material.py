@@ -253,6 +253,6 @@ if __name__ == "__main__":
     InGaAs = material("InGaAs")
     n_InGaAs = InGaAs(T=300, In=0.2, Na=1e23)
 
-    gaas = Material.factory("GaAs", include=("band_gap",), T=300,)
+    gaas = Material.factory("AlGaAs", include=("band_gap",), T=300, comp={"Al": 0.5})
     wl = np.linspace(300, 1000) * 1e-9
     pp(gaas.alpha(wl))
