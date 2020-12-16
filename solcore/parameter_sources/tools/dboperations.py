@@ -5,44 +5,41 @@ import os
 import yaml
 import sqlite3
 import numpy as np
+from pathlib import Path
+import pandas as pd
 
-# from solcore.material_data.refractiveindex_info_DB import dbmaterial
-from solcore.material_data.refractiveindex_info_DB import DBMaterial
+from .dbmaterial import DBMaterial
 
 Shelf = namedtuple("Shelf", ["shelf", "name"])
 Book = namedtuple("Book", ["book", "name"])
 Page = namedtuple("Page", ["page", "name", "path"])
 Entry = namedtuple("Entry", ["id", "shelf", "book", "page"])
 
-# Check latest available database in https://refractiveindex.info/download.php
-_riiurl = "https://refractiveindex.info/download/database/rii-database-2020-01-19.zip"
-
 
 class Database:
     def __init__(self, sqlitedbpath):
         self.db_path = sqlitedbpath
+        self.version = ""
         if not os.path.isfile(sqlitedbpath):
             print("Database file not found.")
         else:
             print("Database file found at", sqlitedbpath)
 
-    def create_database_from_folder(self, yml_database_path, interpolation_points=100):
+    def create_database_from_folder(self, yml_database_path, interpolation_points=200):
         create_sqlite_database(
             yml_database_path, self.db_path, interpolation_points=interpolation_points
         )
 
     def create_database_from_url(
-        self, interpolation_points=100, riiurl=_riiurl, outputfolder=""
+        self, riiurl, interpolation_points=200, outputfolder=""
     ):
+        self.version = Path(riiurl).stem
         Database.DownloadRIIzip(riiurl=riiurl, outputfolder=outputfolder)
         outputfolder = os.path.join(outputfolder, "database")
         self.create_database_from_folder(
             outputfolder, interpolation_points=interpolation_points
         )
         pass
-
-    def check_url_version(self):
-        print(_riiurl)
 
     def search_custom(self, sqlquery):
         conn = sqlite3.connect(self.db_path)
@@ -56,9 +53,10 @@ class Database:
         conn.close()
         return results
 
-    def search_pages(self, term="", exact=False):
+    def search_pages(self, term="", exact=False, print_list=False):
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
+
         if not exact:
             c.execute(
                 "SELECT * FROM pages WHERE shelf like ? or book like ? or page like ? "
@@ -71,17 +69,14 @@ class Database:
                 "or filepath like ?",
                 [term for i in range(4)],
             )
-        results = c.fetchall()
-        if len(results) == 0:
-            print("No results found.")
-        else:
-            print(len(results), "results found.")
-            columns = self._get_pages_columns()
-            print("\t".join(columns))
-            for r in results:
-                print("\t".join(map(str, r[:])))
+
+        results = pd.DataFrame(c.fetchall(), columns=db._get_pages_columns())
         conn.close()
-        # return results
+
+        if print_list:
+            print(results)
+
+        return results
 
     def search_id(self, pageid):
         info = self._get_page_info(pageid)
@@ -154,6 +149,23 @@ class Database:
             for r in results:
                 print(r)
         conn.close()
+
+    def get_available(self) -> pd.Series:
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute("SELECT book FROM pages")
+        results = pd.DataFrame(c.fetchall())[0]
+        conn.close()
+        return results
+
+    def get_available_for_material(self, material=str) -> pd.DataFrame:
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute("SELECT * FROM pages WHERE book like ?", [material])
+        results = pd.DataFrame(c.fetchall(), columns=self._get_pages_columns())
+        results.set_index("pageid", inplace=True)
+        conn.close()
+        return results
 
     def get_material(self, pageid):
         pagedata = self._get_page_info(pageid)
@@ -315,7 +327,7 @@ class Database:
             return pageids
 
     @staticmethod
-    def DownloadRIIzip(outputfolder="", riiurl=_riiurl):
+    def DownloadRIIzip(riiurl, outputfolder=""):
         import requests
         import zipfile
         import io
