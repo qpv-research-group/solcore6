@@ -9,6 +9,7 @@ install_requires = [
     "Deprecated",
     "scipy",
     "pyyaml",
+    "requests",
 ]
 tests_require = ["pytest", "pytest-cov", "pytest-flake8", "pytest-mypy", "hypothesis"]
 docs_require = []
