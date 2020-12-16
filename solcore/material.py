@@ -245,14 +245,3 @@ def _material(name: str, **kwargs):
     for k in comp.keys():
         kwargs.pop(k)
     return Material.factory(name=name, comp=comp, **kwargs)
-
-
-if __name__ == "__main__":
-    from pprint import pp
-
-    InGaAs = material("InGaAs")
-    n_InGaAs = InGaAs(T=300, In=0.2, Na=1e23)
-
-    gaas = Material.factory("AlGaAs", include=("band_gap",), T=300, comp={"Al": 0.5})
-    wl = np.linspace(300, 1000) * 1e-9
-    pp(gaas.alpha(wl))

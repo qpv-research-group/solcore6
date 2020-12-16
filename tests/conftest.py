@@ -73,3 +73,8 @@ def simple_param_source(simple_data_file):
     )
 
     return NewSource.load_source()
+
+
+@fixture(scope="session")
+def nk_database(tmp_path_factory):
+    return tmp_path_factory.mktemp("nk_folder") / "nk.db"

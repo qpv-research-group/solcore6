@@ -1,5 +1,4 @@
 Filename,Symbol,Range (nm),Description
-Individual Files,,,
 AIR,Air,100     1000000,Air
 7059,7059,250      900,Glass 7059
 AG,Ag,187     2066,Silver
@@ -12,7 +11,6 @@ ALON,AlON,399     2479,Aluminum Oxynitride
 ALSB,AlSb,213     2479,Aluminum Antimonide
 ALSI,AlSi,250      800,Aluminum Silicon
 ALSITI,AlSiTi,250      800,Aluminum Silicon Titanium
-ARACHI,,,
 ASI,a-Si,250      840,Amorphous Silicon
 AU,Au,206     2479,Gold
 BAF2,BaF2,200     2000,Barium Fluoride
@@ -125,9 +123,6 @@ ZNSCUB,ZnS,206     1239,Zinc Sulfide (cubic)
 ZNSE,ZnSe,190     1239,Zinc Selenide
 ZRO2,ZrO2,250      850,Zirconium Oxide
 ZRSI2,ZrSi2,413      688,Zirconium Silicide
-,,,
-Filename,Symbol,Range (nm),Description
-Temperature Dependent Data (degC),,,
 ALAS028T,AlAs,275      987,Aluminum Arsenide (Temp: 28 C)
 ALAS052T,AlAs,275      987,Aluminum Arsenide (Temp: 52 C)
 ALAS072T,AlAs,275      987,Aluminum Arsenide (Temp: 72 C)
@@ -185,9 +180,6 @@ SICR-T30,Si,263      826,Crystalline Silicon (Temp: 300 C)
 SICR-T35,Si,263      826,Crystalline Silicon (Temp: 350 C)
 SICR-T40,Si,263      826,Crystalline Silicon (Temp: 400 C)
 SICR-T45,Si,263      826,Crystalline Silicon (Temp: 450 C)
-,,,
-Filename,Symbol,Range (nm),Description
-Compositionally Varying Data,,,
 ALGAINP,AlGaInP,225     1000,Aluminimum Gallium Indium Phosphide (varying Al fraction 0-100%: 50% In and P)
 ALGAINP00,(Al0Ga1)0.5In0.5P,225     1000,Aluminum Gallium Indium Phosphide (0% Al)
 ALGAINP10,(Al.1Ga.9)0.5In0.5P,225     1000,Aluminum Gallium Indium Phosphide (10% Al)

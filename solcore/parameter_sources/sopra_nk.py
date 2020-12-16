@@ -60,7 +60,7 @@ class SopraNKSource(ParameterSourceBase):
         """
         return tuple(
             (
-                m
+                str(m)
                 for m in self._contents.Symbol.unique()
                 if m not in self._compounds.sections()
             )
