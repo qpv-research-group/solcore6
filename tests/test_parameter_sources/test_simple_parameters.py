@@ -15,14 +15,18 @@ def test_locate_source_files_in_path(tmp_path):
     )
     import shutil
     import os
+    import sys
 
+    sep = ";" if sys.platform == "win32" else ":"
     assert len(locate_source_files_in_path()) == 0
 
     builtin = list(locate_source_files_builtin())[0]
     (tmp_path / "more_data").mkdir()
     shutil.copy(builtin, tmp_path)
     shutil.copy(builtin, tmp_path / "more_data")
-    os.environ["SOLCORE_PARAMETERS"] = f"{str(tmp_path)}:{str(tmp_path/ 'more_data')}"
+    os.environ[
+        "SOLCORE_PARAMETERS"
+    ] = f"{str(tmp_path)}{sep}{str(tmp_path/ 'more_data')}"
     in_app_dir = locate_source_files_in_path()
     assert len(in_app_dir) == 2
     for source in in_app_dir:
